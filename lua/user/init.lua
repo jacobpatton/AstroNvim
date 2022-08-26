@@ -4,6 +4,26 @@
 -- You can think of a Lua "table" as a dictionary like data structure the
 -- normal format is "key = value". These also handle array like data structures
 -- where a value with no key simply has an implicit numeric key
+--
+--
+--
+--
+function eslint()
+	return {
+		exe = "eslint_d",
+		args = { "--fix", "--stdin-filename", vim.api.nvim_buf_get_name(0) },
+		stdin = false,
+	}
+end
+
+function prettier()
+	return {
+		exe = "prettier",
+		args = { "--stdin-filepath", vim.api.nvim_buf_get_name(0) },
+		stdin = true,
+	}
+end
+
 local config = {
 
 	-- Configure AstroNvim updates
@@ -257,6 +277,7 @@ local config = {
 									}
 								end,
 							},
+							javascript = { prettier, eslint },
 						},
 					})
 				end,
@@ -308,10 +329,18 @@ local config = {
 
 					require("goto-preview").setup({
 						default_mappings = true,
-  					post_open_hook = post_open_hook,
+						post_open_hook = post_open_hook,
 					})
 				end,
 			},
+			{ 
+				"rcarriga/nvim-dap-ui", 
+				as = "dapui",
+				requires = {"mfussenegger/nvim-dap"},
+				config = function ()
+					require("dapui").setup()
+				end
+			}
 		},
 		-- All other entries override the require("<key>").setup({...}) call for default plugins
 		["null-ls"] = function(config) -- overrides `require("null-ls").setup(config)`
@@ -402,7 +431,7 @@ local config = {
 		vim.api.nvim_create_autocmd("BufWritePost", {
 			desc = "Format file after save",
 			group = "formatter_nvim",
-			pattern = "*.rb",
+			pattern = "*",
 			command = "FormatWrite",
 		})
 
